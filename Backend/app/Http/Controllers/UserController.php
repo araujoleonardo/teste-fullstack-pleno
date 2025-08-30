@@ -165,7 +165,7 @@ class UserController extends Controller
      * @OA\Post(
      *     path="/api/user/store",
      *     summary="Registra um novo usuário",
-     *     tags={"Auth"},
+     *     tags={"User"},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -220,9 +220,16 @@ class UserController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/user/update",
+     *     path="/api/user/update/{id}",
      *     summary="Atualiza um usuário",
-     *     tags={"Auth"},
+     *     tags={"User"},
+     *     @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="ID do usuário a ser atualizado",
+     *          required=true,
+     *          @OA\Schema(type="string", example="1")
+     *      ),
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -259,10 +266,10 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function update(UserUpdateRequest $request): JsonResponse
+    public function update(UserUpdateRequest $request, int $id): JsonResponse
     {
         $dto = new UserFormDTO(
-            id: $request->input('id'),
+            id: $id,
             name: $request->input('name'),
             email: $request->input('email'),
             cpf: $request->input('cpf'),
