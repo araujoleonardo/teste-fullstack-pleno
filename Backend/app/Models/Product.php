@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Product extends Model
 {
@@ -13,12 +14,16 @@ class Product extends Model
         'name',
         'price',
         'description',
-        'product_id'
+        'user_id'
     ];
-
 
     protected $casts = [
         'created_at' => 'datetime:d/m/Y',
         'updated_at' => 'datetime:d/m/Y'
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 }

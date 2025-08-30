@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AuthUserRequest;
+use App\Http\Requests\LoginRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
@@ -21,15 +21,16 @@ class AuthController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"name","email","password","password_confirmation"},
+     *             required={"name","email","cpf","password","password_confirmation"},
      *             @OA\Property(property="name", type="string", example="João Silva"),
      *             @OA\Property(property="email", type="string", format="email", example="joao@example.com"),
+     *             @OA\Property(property="cpf", type="string", example="12345678909", description="CPF válido com 11 dígitos, apenas números"),
      *             @OA\Property(property="password", type="string", format="password", example="123456"),
      *             @OA\Property(property="password_confirmation", type="string", format="password", example="123456")
      *         )
      *     ),
      *     @OA\Response(
-     *         response=200,
+     *         response=201,
      *         description="Usuário registrado com sucesso e token JWT retornado",
      *         @OA\JsonContent(
      *             @OA\Property(property="access_token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGciOi..."),
@@ -42,54 +43,58 @@ class AuthController extends Controller
      *         description="Erro de validação",
      *         @OA\JsonContent(
      *             @OA\Property(property="errors", type="object",
-     *                 @OA\Property(property="email", type="array", @OA\Items(type="string", example="O campo email já está em uso.")),
+     *                 @OA\Property(property="email", type="array", @OA\Items(type="string", example="O campo e-mail já está em uso.")),
+     *                 @OA\Property(property="cpf", type="array", @OA\Items(type="string", example="O campo CPF já está em uso.")),
      *                 @OA\Property(property="password", type="array", @OA\Items(type="string", example="O campo senha é obrigatório."))
      *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro interno no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Erro inesperado ao registrar usuário.")
      *         )
      *     )
      * )
      */
-    public function register(Request $request): JsonResponse
+    public function register(AuthUserRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'cpf' => $request->cpf,
+                'password' => Hash::make($request->password),
+            ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors()
-            ], 422);
+            $token = JWTAuth::fromUser($user);
+
+            return response()->json($this->respondWithToken($token)->getData(true), Response::HTTP_CREATED);
+        } catch (\Throwable $e) {
+            return response()->json(
+                ['error' => 'Erro ao registrar usuário.', 'message' => $e->getMessage()],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
         }
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        $token = JWTAuth::fromUser($user);
-
-        return $this->respondWithToken($token);
     }
 
     /**
      * @OA\Post(
      *     path="/api/login",
-     *     summary="Faz login de um usuário",
+     *     summary="Autentica um usuário e retorna um token JWT",
      *     tags={"Auth"},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
      *             required={"email","password"},
-     *             @OA\Property(property="email", type="string", format="email", example="suporte@gmail.com"),
-     *             @OA\Property(property="password", type="string", format="password", example="abc12345")
+     *             @OA\Property(property="email", type="string", format="email", example="joao@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="123456"),
      *         )
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Login bem-sucedido. Retorna token JWT",
+     *         description="Login bem-sucedido. Retorna o token JWT",
      *         @OA\JsonContent(
      *             @OA\Property(property="access_token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGciOi..."),
      *             @OA\Property(property="token_type", type="string", example="bearer"),
@@ -107,7 +112,7 @@ class AuthController extends Controller
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Erro de validação",
+     *         description="Erro de validação nos campos enviados",
      *         @OA\JsonContent(
      *             @OA\Property(property="errors", type="object",
      *                 @OA\Property(property="email", type="array", @OA\Items(type="string", example="O campo email é obrigatório.")),
@@ -117,28 +122,24 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function login(Request $request): JsonResponse
+    public function login(LoginRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'password' => 'required|string|min:6',
-        ]);
+        try {
+            $credentials = $request->only('email', 'password');
 
-        if ($validator->fails()) {
+            if (!$token = JWTAuth::attempt($credentials)) {
+                return response()->json([
+                    'errors' => ['email' => ['Credenciais inválidas']]
+                ], Response::HTTP_UNAUTHORIZED);
+            }
+
+            return $this->respondWithToken($token);
+        } catch (\Throwable $e) {
             return response()->json([
-                'errors' => $validator->errors()
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                'error' => 'Erro ao tentar autenticar.',
+                'message' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        $credentials = $request->only('email', 'password');
-
-        if (!$token = JWTAuth::attempt($credentials)) {
-            return response()->json([
-                'errors' => ['email' => ['Credenciais inválidas']]
-            ], Response::HTTP_UNAUTHORIZED);
-        }
-
-        return $this->respondWithToken($token);
     }
 
     /**

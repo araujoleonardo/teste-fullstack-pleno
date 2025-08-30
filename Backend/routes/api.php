@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +16,22 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::post('/login',           [AuthController::class, 'login']);
+Route::post('/logout',          [AuthController::class, 'logout']);
+Route::post('/register',        [AuthController::class, 'register']);
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('/user-auth',        [AuthController::class, 'me']);
+    Route::post('/refresh-token',   [AuthController::class, 'refresh']);
+    Route::post('/validate-token',  [AuthController::class, 'validateToken']);
 });
+
+Route::prefix('user')->group(function () {
+    Route::get('/get-users',        [UserController::class, 'getUsers']);
+
+    Route::get('/',                 [UserController::class, 'index']);
+    Route::get('/show/{id}',        [UserController::class, 'show']);
+    Route::post('/create',          [UserController::class, 'store']);
+    Route::put('/update/{id}',      [UserController::class, 'update']);
+    Route::delete('/delete/{id}',   [UserController::class, 'destroy']);
+})->middleware('auth:api');

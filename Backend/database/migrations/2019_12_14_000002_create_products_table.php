@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('name', 100);
             $table->float('price', 8, 2);
             $table->string('description')->nullable();
-            $table->foreignId('product_id')
-                ->constrained('products')
+            $table->foreignId('user_id')
+                ->constrained('users')
                 ->cascadeOnDelete();
             $table->timestamps();
         });
