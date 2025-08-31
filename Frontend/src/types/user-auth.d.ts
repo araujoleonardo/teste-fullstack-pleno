@@ -2,6 +2,7 @@ export interface UserAuth {
   id?: string;
   name?: string;
   email?: string;
+  cpf?: string;
   password?: string;
-  remember_me?: boolean;
+  password_confirmation?: string;
 }

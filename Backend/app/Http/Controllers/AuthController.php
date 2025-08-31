@@ -61,10 +61,11 @@ class AuthController extends Controller
     public function register(AuthUserRequest $request): JsonResponse
     {
         try {
+            $cpf = preg_replace('/[^0-9]/', '', $request->cpf);
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'cpf' => $request->cpf,
+                'cpf' => $cpf,
                 'password' => Hash::make($request->password),
             ]);
 

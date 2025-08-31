@@ -10,16 +10,19 @@ const auth = useAuthStore();
 const isLoading = ref(false);
 const errorMessage = ref<string | undefined>(undefined);
 const user = reactive<UserAuth>({
+  name: undefined,
   email: undefined,
+  cpf: undefined,
   password: undefined,
+  password_confirmation: undefined,
 });
 
-const handleLogin = async () => {
+const handleRegister = async () => {
   try {
     isLoading.value = true;
     errorMessage.value = undefined;
 
-    await auth.login(user.email!, user.password!);
+    await auth.register(user);
 
     router.push('/');
   } catch (error) {
@@ -37,9 +40,21 @@ const handleRedirect = () => {
 <template>
   <v-container class="d-flex justify-center align-center" style="height: 100vh;">
     <v-card class="pa-4" style="width: 25rem;">
-      <v-card-title class="justify-center">Login</v-card-title>
+      <v-card-title class="justify-center">Registrar-se</v-card-title>
       <v-card-text>
         <v-form ref="loginForm">
+          <v-col cols="12">
+            <v-text-field
+                id="name"
+                name="name"
+                type="name"
+                variant="outlined"
+                label="Nome"
+                v-model="user.name"
+                required/>
+            <error-label v-if="auth.validate.name" :message="auth.validate.name[0]" />
+          </v-col>
+
           <v-col cols="12">
             <v-text-field
                 id="email"
@@ -54,6 +69,19 @@ const handleRedirect = () => {
 
           <v-col cols="12">
             <v-text-field
+                id="cpf"
+                name="cpf"
+                type="cpf"
+                variant="outlined"
+                label="Cpf"
+                v-model="user.cpf"
+                v-mask="['###.###.###-##']"
+                required/>
+            <error-label v-if="auth.validate.cpf" :message="auth.validate.cpf[0]" />
+          </v-col>
+
+          <v-col cols="12">
+            <v-text-field
                 id="password"
                 name="password"
                 type="password"
@@ -64,18 +92,29 @@ const handleRedirect = () => {
             <error-label v-if="auth.validate.password" :message="auth.validate.password[0]" />
           </v-col>
 
+          <v-col cols="12">
+            <v-text-field
+                id="password_confirmation"
+                name="password_confirmation"
+                type="password"
+                variant="outlined"
+                label="Confirmar Senha"
+                v-model="user.password_confirmation"
+                required/>
+          </v-col>
+
           <v-btn
               class="mt-4"
               color="primary"
               block
-              @click.prevent="handleLogin"
+              @click.prevent="handleRegister"
           >
-            Entrar
+            Salvar
           </v-btn>
 
           <v-col cols="12 d-flex justify-end">
             <v-btn variant="plain" @click.prevent="handleRedirect">
-              Cadastre-se
+              login
             </v-btn>
           </v-col>
         </v-form>

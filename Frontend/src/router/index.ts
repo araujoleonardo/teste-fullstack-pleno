@@ -3,6 +3,7 @@ import UserPage from "@/pages/UserPage.vue";
 import AppLayout from "@/layouts/AppLayout.vue";
 import LoginPage from "@/pages/LoginPage.vue";
 import routes from "@/router/middleware.ts";
+import RegisterPage from "@/pages/RegisterPage.vue";
 
 
 const router = createRouter({
@@ -12,6 +13,11 @@ const router = createRouter({
             path: '/login',
             name: 'login',
             component: LoginPage,
+        },
+        {
+            path: '/register',
+            name: 'register',
+            component: RegisterPage,
         },
         {
             path: '/',

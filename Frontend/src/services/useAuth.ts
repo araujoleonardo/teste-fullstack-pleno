@@ -14,6 +14,8 @@ export const useAuthStore = defineStore('auth', () => {
         id: undefined,
         name: undefined,
         email: undefined,
+        password: undefined,
+        password_confirmation: undefined
     })
 
     function setToken(newToken: string): void {
@@ -28,6 +30,27 @@ export const useAuthStore = defineStore('auth', () => {
     function clearToken(): void {
         token.value = null
         Cookie.remove('token')
+    }
+
+    async function register(payload: {
+        name?: string
+        email?: string
+        cpf?: string
+        password?: string
+        password_confirmation?: string
+    }): Promise<void> {
+        try {
+            const { data } = await api.post('/register', payload)
+
+            if (data.token) {
+                setToken(data.token)
+                await checkUser()
+            }
+        } catch (error: any) {
+            validate.value = error.response?.data?.errors || {}
+            console.error('Erro no registro:', error?.response?.data || error.message)
+            throw error
+        }
     }
 
     async function login(email: string, password: string): Promise<void> {
@@ -100,6 +123,8 @@ export const useAuthStore = defineStore('auth', () => {
     return {
         token,
         user,
+        validate,
+        register,
         login,
         logout,
         validateToken,
