@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
@@ -63,7 +64,7 @@ class AuthController extends Controller
         try {
             $cpf = preg_replace('/[^0-9]/', '', $request->cpf);
             $user = User::create([
-                'name' => $request->name,
+                'name' => Str::upper($request->name),
                 'email' => $request->email,
                 'cpf' => $cpf,
                 'password' => Hash::make($request->password),

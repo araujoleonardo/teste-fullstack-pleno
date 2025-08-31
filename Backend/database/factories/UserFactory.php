@@ -26,8 +26,9 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
+            'cpf' => $this->generateCpf(),
             'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
+            'password' => static::$password ??= Hash::make('123456'),
             'remember_token' => Str::random(10),
         ];
     }
@@ -40,5 +41,31 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    function generateCpf(): string
+    {
+        $cpf = [];
+        for ($i = 0; $i < 9; $i++) {
+            $cpf[] = rand(0, 9);
+        }
+
+        // Calcula primeiro dígito verificador
+        $d1 = 0;
+        for ($i = 0, $x = 10; $i < 9; $i++, $x--) {
+            $d1 += $cpf[$i] * $x;
+        }
+        $d1 = ($d1 % 11 < 2) ? 0 : 11 - ($d1 % 11);
+        $cpf[] = $d1;
+
+        // Calcula segundo dígito verificador
+        $d2 = 0;
+        for ($i = 0, $x = 11; $i < 10; $i++, $x--) {
+            $d2 += $cpf[$i] * $x;
+        }
+        $d2 = ($d2 % 11 < 2) ? 0 : 11 - ($d2 % 11);
+        $cpf[] = $d2;
+
+        return implode('', $cpf);
     }
 }

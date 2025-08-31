@@ -6,7 +6,7 @@ use App\Http\Rules\CpfValidate;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UserUpdateRequest extends FormRequest
+class UserCreateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,26 +23,10 @@ class UserUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        $userId = $this->get('id');
-
         return [
-            'name' => [
-                'required',
-                'string',
-                'min:10',
-            ],
-            'email' => [
-                'required',
-                'string',
-                'email',
-                'min:10',
-                Rule::unique('users', 'email')->ignore($userId, 'id'),
-            ],
-            'cpf' => [
-                'required',
-                new CpfValidate(),
-                Rule::unique('users', 'email')->ignore($userId, 'id'),
-            ]
+            'name'      => 'required|string|min:10',
+            'email'     => 'required|string|email|min:10|unique:users',
+            'cpf'       => ['required', 'unique:users', new CpfValidate()],
         ];
     }
 

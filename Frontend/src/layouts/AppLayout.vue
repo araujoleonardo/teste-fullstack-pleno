@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ChevronDown, PowerOff } from "lucide-vue-next";
 import {useAuthStore} from "@/services/useAuth.js";
 
 const {user, logout} = useAuthStore();
@@ -7,20 +6,20 @@ const {user, logout} = useAuthStore();
 <template>
   <v-app>
     <v-app-bar color="primary" dark>
-      <v-toolbar-title>Usuários</v-toolbar-title>
+      <v-toolbar-title>Gerencidor de Usuarios e Produtos</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-menu>
         <template v-slot:activator="{ props }">
           <v-btn
               v-bind="props"
           >
-            {{user.name}} <ChevronDown />
+            {{user.name}} <font-awesome-icon :icon="['fas', 'chevron-down']" />
           </v-btn>
         </template>
         <v-list>
           <v-list-item>
-            <v-list-item-title @click.prevent="logout">
-              <PowerOff />
+            <v-list-item-title class="cursor-pointer" @click.prevent="logout">
+              <font-awesome-icon :icon="['fas', 'power-off']" />
               Sair
             </v-list-item-title>
           </v-list-item>

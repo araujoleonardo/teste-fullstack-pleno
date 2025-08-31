@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import AppPagination from "@/components/ui/AppPagination.vue";
-import useUserTable from "@/composables/user/useUserTable.ts";
-import UserFormDialog from "@/components/user/UserFormDialog.vue";
-import router from "@/router";
+import useProductTable from "@/composables/product/useProductTable.ts";
+
+const props = withDefaults(defineProps<{
+  id?: number;
+}>(), {
+  id: undefined,
+});
 
 const {
   loading,
@@ -16,12 +20,9 @@ const {
   handleOpen,
   handleEdit,
   openDialog,
-  user
-} = useUserTable('/user');
+  product
+} = useProductTable('/product/'+props.id);
 
-const handleShow = (id: number) => {
-  router.push('/usuario/'+id+'/produtos')
-}
 </script>
 
 <template>
@@ -36,7 +37,7 @@ const handleShow = (id: number) => {
                 type="text"
                 width="300"
                 density="compact"
-                placeholder="Nome | E-mail | Cpf"
+                placeholder="Nome | Preco"
                 variant="outlined"
             />
           </v-col>
@@ -60,14 +61,14 @@ const handleShow = (id: number) => {
               </v-btn>
             </th>
             <th class="text-left">
-              Email
-              <v-btn density="compact" variant="plain" @click="handleSort('email')" size="small">
+              Preco
+              <v-btn density="compact" variant="plain" @click="handleSort('price')" size="small">
                 <font-awesome-icon :icon="['fas', 'sort']" />
               </v-btn>
             </th>
             <th class="text-left">
-              CPF
-              <v-btn density="compact" variant="plain" @click="handleSort('cpf')" size="small">
+              Descricao
+              <v-btn density="compact" variant="plain" @click="handleSort('description')" size="small">
                 <font-awesome-icon :icon="['fas', 'sort']" />
               </v-btn>
             </th>
@@ -85,8 +86,8 @@ const handleShow = (id: number) => {
           <tbody v-if="dataSet.data?.length">
           <tr v-for="(item) in dataSet.data" :key="item.id">
             <td>{{ item.name }}</td>
-            <td>{{ item.email }}</td>
-            <td>{{ item.cpf }}</td>
+            <td>{{ item.price }}</td>
+            <td>{{ item.description }}</td>
             <td>{{ item.createdAt }}</td>
             <td class="justify-space-between">
               <v-row align="center" justify="center">
@@ -95,11 +96,11 @@ const handleShow = (id: number) => {
                     <font-awesome-icon size="lg" :icon="['fas', 'pen-to-square']" />
                   </v-btn>
                 </v-col>
-                <v-col cols="auto">
-                  <v-btn density="compact" color="green-darken-2" variant="text" icon @click="handleShow(item.id)">
-                    <font-awesome-icon size="lg" :icon="['fas', 'file-lines']" />
-                  </v-btn>
-                </v-col>
+<!--                <v-col cols="auto">-->
+<!--                  <v-btn density="compact" color="green-darken-2" variant="text" icon @click="handleShow(item.id)">-->
+<!--                    <font-awesome-icon size="lg" :icon="['fas', 'file-lines']" />-->
+<!--                  </v-btn>-->
+<!--                </v-col>-->
                 <v-col cols="auto">
                   <v-btn density="compact" color="red-darken-2" variant="text" icon @click="handleDelete(item)">
                     <font-awesome-icon size="lg" :icon="['fas', 'trash']" />
@@ -125,17 +126,17 @@ const handleShow = (id: number) => {
     </v-card>
   </div>
 
-  <UserFormDialog
-      :visible="openDialog.isOpen"
-      :handleClose="
-        () => {
-          openDialog.isOpen = false
-        }
-      "
-      :tipoForm="openDialog.tipoForm"
-      :user="user"
-      @reload="loadData"
-  />
+<!--  <UserFormDialog-->
+<!--      :visible="openDialog.isOpen"-->
+<!--      :handleClose="-->
+<!--        () => {-->
+<!--          openDialog.isOpen = false-->
+<!--        }-->
+<!--      "-->
+<!--      :tipoForm="openDialog.tipoForm"-->
+<!--      :user="user"-->
+<!--      @reload="loadData"-->
+<!--  />-->
 </template>
 
 <style scoped>

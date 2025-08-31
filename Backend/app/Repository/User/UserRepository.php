@@ -23,9 +23,9 @@ class UserRepository implements IUserRepository
         $query = User::with('products');
 
         if ($dto->search) {
-            $query->where('name', 'LIKE', '%' . $dto->search . '%')
-                ->orWhere('email', 'LIKE', '%' . $dto->search . '%')
-                ->orWhere('cpf', 'LIKE', '%' . $dto->search . '%');
+            $query->where('name', 'ILIKE', '%' . $dto->search . '%')
+                ->orWhere('email', 'ILIKE', '%' . $dto->search . '%')
+                ->orWhere('cpf', 'ILIKE', '%' . $dto->search . '%');
         }
 
         if ($dto->field && $dto->direction) {
@@ -43,11 +43,12 @@ class UserRepository implements IUserRepository
     public function store(UserFormDTO $dto): bool
     {
         try {
+            $cpf = preg_replace('/[^0-9]/', '', $dto->cpf);
             $user = new User();
             $user->name = Str::upper($dto->name);
             $user->email = $dto->email;
-            $user->cpf = $dto->cpf;
-            $user->password = Hash::make('password');
+            $user->cpf = $cpf;
+            $user->password = Hash::make('123456');
             $user->save();
 
             return true;
@@ -60,11 +61,12 @@ class UserRepository implements IUserRepository
     public function update(UserFormDTO $dto): bool
     {
         try {
+            $cpf = preg_replace('/[^0-9]/', '', $dto->cpf);
             $user = User::findOrFail($dto->id);
             $user->name = Str::upper($dto->name);
             $user->email = $dto->email;
-            $user->cpf = $dto->cpf;
-            $user->password = Hash::make('password');
+            $user->cpf = $cpf;
+            $user->password = Hash::make('123456');
             $user->save();
 
             return true;

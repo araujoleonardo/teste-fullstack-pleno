@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { PaginatedDataModel } from "@/models/PaginatedDataModel";
 
+// Define the emits with both page and perPage events
 const emit = defineEmits<{
   (e: 'page', data: string): void
   (e: 'perPage', value: number): void
 }>()
 
+// Define os props explicitamente sem usar generics
 defineProps({
   data: {
     type: Object as () => PaginatedDataModel<any>,
@@ -20,64 +22,84 @@ const emviaEmit = (url: string | undefined): void => {
   emit('page', url)
 }
 
-const handlePerPage = (event: Event): void => {
-  const select = event.target as HTMLSelectElement
-  const value = parseInt(select.value, 10)
+// Handler for items per page change
+const handlePerPage = (value: number): void => {
   emit('perPage', value)
 }
 
+// Função para identificar "Previous"
 const isPrevious = (label: string): boolean => {
   return label.includes('&laquo;') || label.toLowerCase().includes('previous')
 }
 
+// Função para identificar "Next"
 const isNext = (label: string): boolean => {
   return label.includes('&raquo;') || label.toLowerCase().includes('next')
 }
 </script>
 
 <template>
-  <div>
-    <!-- Container principal com layout flexível -->
-    <v-row align="center" justify="space-between" class="mt-4 w-100">
-      <!-- Texto informativo -->
-      <v-col cols="12" md="auto" v-if="data.total" class="text-center text-md-left">
-        <div class="text-caption text-secondary">
+  <v-row class="mt-4" align="center" justify="space-between">
+    <!-- Texto informativo -->
+    <v-col cols="12" md="auto" v-if="data.total">
+      <v-sheet color="transparent">
+        <span class="text-body-2 text-medium-emphasis">
           Mostrando {{ data.to }} de {{ data.total }} itens.
-        </div>
-      </v-col>
+        </span>
+      </v-sheet>
+    </v-col>
 
-      <!-- Botões de paginação e seletor de itens por página -->
-      <v-col cols="12" md="auto" class="d-flex flex-column flex-md-row align-center justify-space-between w-100 md-w-auto overflow-x-auto text-caption">
+    <!-- Controles de paginação -->
+    <v-col cols="12" md="auto">
+      <v-row align="center" justify="center" class="flex-nowrap">
         <!-- Seletor de quantidade de itens por página -->
-        <v-col cols="12" md="auto" class="text-center mr-3">
-          <span class="text-secondary mr-2">Por página:</span>
-          <v-select
-              v-model="data.perPage"
-              :items="[10, 20, 50]"
-              density="compact"
-              variant="outlined"
-              hide-details
-              @update:model-value="handlePerPage"
-              class="text-secondary"
-          ></v-select>
+        <v-col cols="auto">
+          <v-row align="center" no-gutters>
+            <v-col cols="auto" class="mr-2">
+              <span class="text-body-2 text-medium-emphasis">Por página:</span>
+            </v-col>
+            <v-col cols="auto">
+              <v-select
+                  :model-value="data?.perPage || 10"
+                  @update:model-value="handlePerPage"
+                  :items="[10, 20, 50]"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  style="min-width: 50px;"
+              ></v-select>
+            </v-col>
+          </v-row>
         </v-col>
 
         <!-- Botões de paginação -->
-        <div class="d-flex align-center">
-          <v-btn
-              v-for="(link, k) in data.links"
-              :key="k"
-              :color="link.active ? 'primary' : 'secondary'"
-              :variant="link.active ? 'tonal' : 'text'"
-              size="small"
-              class="mx-1"
-              :disabled="!link.url"
-              @click="emviaEmit(link.url)"
-              :prepend-icon="isPrevious(link.label) ? 'mdi-chevron-left' : isNext(link.label) ? 'mdi-chevron-right' : ''"
-              v-html="isPrevious(link.label) || isNext(link.label) ? '' : link.label"
-          ></v-btn>
-        </div>
-      </v-col>
-    </v-row>
-  </div>
+        <v-col cols="auto">
+          <v-btn-group variant="outlined" density="compact">
+            <v-btn
+                v-for="(link, k) in data.links"
+                :key="k"
+                :variant="link.active ? 'flat' : 'outlined'"
+                :color="link.active ? 'primary' : 'default'"
+                size="small"
+                :disabled="!link.url"
+                @click="emviaEmit(link.url)"
+                min-width="32"
+                class="px-2"
+            >
+              <!-- Substituir texto pelos ícones -->
+              <template v-if="isPrevious(link.label)">
+                <font-awesome-icon :icon="['fas', 'chevron-left']" />
+              </template>
+              <template v-else-if="isNext(link.label)">
+                <font-awesome-icon :icon="['fas', 'chevron-right']" />
+              </template>
+              <template v-else>
+                <span v-html="link.label"></span>
+              </template>
+            </v-btn>
+          </v-btn-group>
+        </v-col>
+      </v-row>
+    </v-col>
+  </v-row>
 </template>

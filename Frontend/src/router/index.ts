@@ -4,6 +4,7 @@ import AppLayout from "@/layouts/AppLayout.vue";
 import LoginPage from "@/pages/LoginPage.vue";
 import routes from "@/router/middleware.ts";
 import RegisterPage from "@/pages/RegisterPage.vue";
+import ProductPage from "@/pages/ProductPage.vue";
 
 
 const router = createRouter({
@@ -28,7 +29,13 @@ const router = createRouter({
                     name: 'usuarios',
                     component: UserPage,
                     meta: { requiresAuth: true }
-                }
+                },
+                {
+                    path: '/usuario/:id/produtos',
+                    name: 'produtos',
+                    component: ProductPage,
+                    meta: {requiresAuth: true}
+                },
             ]
         },
     ]

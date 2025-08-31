@@ -14,11 +14,11 @@ class ProductRepository implements IProductRepository
 {
     public function getAll(BaseFilterDTO $dto, int $id): LengthAwarePaginator
     {
-        $query = Product::where('user_id', '=', $id)->query();
+        $query = Product::where('user_id', '=', $id);
 
         if ($dto->search) {
-            $query->where('name', 'LIKE', '%' . $dto->search . '%')
-                ->orWhere('price', 'LIKE', '%' . $dto->search . '%');
+            $query->where('name', 'ILIKE', '%' . $dto->search . '%')
+                ->orWhere('price', 'ILIKE', '%' . $dto->search . '%');
         }
 
         if ($dto->field && $dto->direction) {
@@ -36,9 +36,10 @@ class ProductRepository implements IProductRepository
         }
 
         try {
+            $price = preg_replace('/[^0-9]/', '', $dto->price);
             $product = new Product();
             $product->name = Str::upper($dto->name);
-            $product->price = $dto->price;
+            $product->price = $price;
             $product->description = $dto->description;
             $product->user_id = $id;
             $product->save();
@@ -53,9 +54,10 @@ class ProductRepository implements IProductRepository
     public function update(ProductFormDTO $dto): bool
     {
         try {
+            $price = preg_replace('/[^0-9]/', '', $dto->price);
             $product = Product::findOrFail($dto->id);
             $product->name = Str::upper($dto->name);
-            $product->price = $dto->price;
+            $product->price = $price;
             $product->description = $dto->description;
             $product->save();
 

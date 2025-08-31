@@ -22,6 +22,15 @@ class Product extends Model
         'updated_at' => 'datetime:d/m/Y'
     ];
 
+    public function getPriceAttribute(): ?string
+    {
+        if (!isset($this->attributes['price'])) {
+            return null;
+        }
+
+        return 'R$ ' . number_format($this->attributes['price'], 2, ',', '.');
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');

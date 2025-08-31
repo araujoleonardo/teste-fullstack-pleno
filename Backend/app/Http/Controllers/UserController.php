@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\DTO\FormDTO\UserFormDTO;
 use App\DTO\PaginationFilter\BaseFilterDTO;
-use App\Http\Requests\AuthUserRequest;
+use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Services\User\IUserService;
 use Illuminate\Http\JsonResponse;
@@ -202,7 +202,7 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function store(AuthUserRequest $request): JsonResponse
+    public function store(UserCreateRequest $request): JsonResponse
     {
         $dto = new UserFormDTO(
             id: null,
@@ -220,16 +220,9 @@ class UserController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/user/update/{id}",
+     *     path="/api/user/update",
      *     summary="Atualiza um usuário",
      *     tags={"User"},
-     *     @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="ID do usuário a ser atualizado",
-     *          required=true,
-     *          @OA\Schema(type="string", example="1")
-     *      ),
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -266,10 +259,10 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function update(UserUpdateRequest $request, int $id): JsonResponse
+    public function update(UserUpdateRequest $request): JsonResponse
     {
         $dto = new UserFormDTO(
-            id: $id,
+            id: $request->input('id'),
             name: $request->input('name'),
             email: $request->input('email'),
             cpf: $request->input('cpf'),

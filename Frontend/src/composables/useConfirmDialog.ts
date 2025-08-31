@@ -1,11 +1,12 @@
 import { reactive, readonly } from 'vue';
+import type { ConfirmDialogOptions, ConfirmDialogState } from '@/types/ConfirmDialog';
 
-interface OpenConfirmDialogOptions {
+export interface ConfirmDialogOptions {
     title?: string;
     message?: string;
 }
 
-interface ConfirmDialogState {
+export interface ConfirmDialogState {
     visible: boolean;
     title: string;
     message: string;
@@ -19,30 +20,30 @@ const state = reactive<ConfirmDialogState>({
     resolveCallback: null,
 });
 
-const open = (options: OpenConfirmDialogOptions): Promise<boolean> => {
+const open = (options: ConfirmDialogOptions = {}): Promise<boolean> => {
     state.title = options.title || 'Confirmação';
     state.message = options.message || 'Você tem certeza?';
     state.visible = true;
 
-    return new Promise((resolve) => {
+    return new Promise<boolean>((resolve) => {
         state.resolveCallback = resolve;
     });
 };
 
 const confirm = (): void => {
+    state.visible = false;
     if (state.resolveCallback) {
         state.resolveCallback(true);
-        state.resolveCallback = null; // Limpa o callback
+        state.resolveCallback = null;
     }
-    state.visible = false;
 };
 
 const cancel = (): void => {
+    state.visible = false;
     if (state.resolveCallback) {
         state.resolveCallback(false);
         state.resolveCallback = null;
     }
-    state.visible = false;
 };
 
 export function useConfirmDialog() {
@@ -51,5 +52,5 @@ export function useConfirmDialog() {
         open,
         confirm,
         cancel,
-    };
+    } as const;
 }
