@@ -17,5 +17,6 @@ export interface PropsProduct {
   visible: boolean
   tipoForm?: string
   product?: Product
+  userId?: number
   handleClose: () => void
 }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AppPagination from "@/components/ui/AppPagination.vue";
 import useProductTable from "@/composables/product/useProductTable.ts";
+import ProductFormDialog from "@/components/product/ProductFormDialog.vue";
 
 const props = withDefaults(defineProps<{
   id?: number;
@@ -20,13 +21,51 @@ const {
   handleOpen,
   handleEdit,
   openDialog,
-  product
-} = useProductTable('/product/'+props.id);
+  product,
+  user
+} = useProductTable('/product', props.id);
 
 </script>
 
 <template>
   <div>
+    <v-card>
+      <v-card-title>
+        Produtos do usuario:
+      </v-card-title>
+      <v-divider></v-divider>
+      <v-card-item>
+        <v-table>
+          <thead>
+            <tr>
+              <th class="text-left">
+                Nome
+              </th>
+              <th class="text-left">
+                Email
+              </th>
+              <th class="text-left">
+                CPF
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td class="text-left">
+              {{user.name}}
+            </td>
+            <td class="text-left">
+              {{user.email}}
+            </td>
+            <td class="text-left">
+              {{user.cpf}}
+            </td>
+          </tr>
+          </tbody>
+        </v-table>
+      </v-card-item>
+    </v-card>
+    <br>
     <v-card>
       <v-card-title>
         <v-row align="center" justify="space-between">
@@ -96,11 +135,6 @@ const {
                     <font-awesome-icon size="lg" :icon="['fas', 'pen-to-square']" />
                   </v-btn>
                 </v-col>
-<!--                <v-col cols="auto">-->
-<!--                  <v-btn density="compact" color="green-darken-2" variant="text" icon @click="handleShow(item.id)">-->
-<!--                    <font-awesome-icon size="lg" :icon="['fas', 'file-lines']" />-->
-<!--                  </v-btn>-->
-<!--                </v-col>-->
                 <v-col cols="auto">
                   <v-btn density="compact" color="red-darken-2" variant="text" icon @click="handleDelete(item)">
                     <font-awesome-icon size="lg" :icon="['fas', 'trash']" />
@@ -126,17 +160,18 @@ const {
     </v-card>
   </div>
 
-<!--  <UserFormDialog-->
-<!--      :visible="openDialog.isOpen"-->
-<!--      :handleClose="-->
-<!--        () => {-->
-<!--          openDialog.isOpen = false-->
-<!--        }-->
-<!--      "-->
-<!--      :tipoForm="openDialog.tipoForm"-->
-<!--      :user="user"-->
-<!--      @reload="loadData"-->
-<!--  />-->
+  <ProductFormDialog
+      :visible="openDialog.isOpen"
+      :handleClose="
+        () => {
+          openDialog.isOpen = false
+        }
+      "
+      :tipoForm="openDialog.tipoForm"
+      :product="product"
+      :userId="user.id"
+      @reload="loadData"
+  />
 </template>
 
 <style scoped>

@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import useUserForm from "@/composables/user/useUserForm.js";
 import ErrorLabel from "@/components/ui/ErrorLabel.vue";
-import type {PropsUser, User} from "@/types/user-data";
+import type {Product, PropsProduct} from "@/types/product-data";
+import useProductForm from "@/composables/product/useProductForm.ts";
 
-const props = withDefaults(defineProps<PropsUser>(), {
+const props = withDefaults(defineProps<PropsProduct>(), {
   tipoForm: 'novo',
-  user: () => ({} as User),
+  product: () => ({} as Product),
+  userId: () => ({} as number),
   visible: false,
   handleClose: () => {},
 })
@@ -23,7 +24,7 @@ const {
   handleSubmit,
   open,
   close
-} = useUserForm(props, emit);
+} = useProductForm(props, emit);
 </script>
 
 <template>
@@ -52,27 +53,27 @@ const {
 
           <v-col cols="12">
             <v-text-field
-                id="email"
-                name="email"
+                id="price"
+                name="price"
                 type="text"
                 variant="outlined"
-                label="Email"
-                v-model="formData.email"
+                label="Preco"
+                v-mask="['R$ ##,##', 'R$ ###,##', 'R$ ###.###,##']"
+                v-model="formData.price"
                 required/>
-            <error-label v-if="validate.email" :message="validate.email[0]" />
+            <error-label v-if="validate.price" :message="validate.price[0]" />
           </v-col>
 
           <v-col cols="12">
             <v-text-field
-                id="cpf"
-                name="cpf"
+                id="description"
+                name="description"
                 type="text"
                 variant="outlined"
-                label="CPF"
-                v-mask="['###.###.###-##']"
-                v-model="formData.cpf"
+                label="Descricao"
+                v-model="formData.description"
                 required/>
-            <error-label v-if="validate.cpf" :message="validate.cpf[0]" />
+            <error-label v-if="validate.description" :message="validate.description[0]" />
           </v-col>
         </v-row>
       </v-card-text>

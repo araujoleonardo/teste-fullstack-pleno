@@ -36,7 +36,10 @@ class ProductRepository implements IProductRepository
         }
 
         try {
-            $price = preg_replace('/[^0-9]/', '', $dto->price);
+            $price = preg_replace('/[^0-9,\.]/', '', $dto->price);
+            $price = str_replace(',', '.', $price);
+            $price = (float) $price;
+
             $product = new Product();
             $product->name = Str::upper($dto->name);
             $product->price = $price;
@@ -54,7 +57,10 @@ class ProductRepository implements IProductRepository
     public function update(ProductFormDTO $dto): bool
     {
         try {
-            $price = preg_replace('/[^0-9]/', '', $dto->price);
+            $price = preg_replace('/[^0-9,\.]/', '', $dto->price);
+            $price = str_replace(',', '.', $price);
+            $price = (float) $price;
+
             $product = Product::findOrFail($dto->id);
             $product->name = Str::upper($dto->name);
             $product->price = $price;

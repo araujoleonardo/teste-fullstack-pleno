@@ -5,12 +5,13 @@ import type {IParams} from "@/types/pagination-data";
 import {useToast} from "@/composables/useToast.ts";
 import {useConfirmDialog} from "@/composables/useConfirmDialog.ts";
 import type {Product} from "@/types/product-data";
+import type {User} from "@/types/user-data";
 
-export default function useProductTable(baseEndpoint: string) {
+export default function useProductTable(baseEndpoint: string, id: number) {
     const { showToast } = useToast();
     const { open } = useConfirmDialog();
     const loading = ref(false);
-    const baseUrl = ref(`${baseEndpoint}?page=1`);
+    const baseUrl = ref(`${baseEndpoint}/${id}?page=1`);
     const currentPage = ref<number | undefined>(undefined);
     const openDialog = ref({ isOpen: false, tipoForm: 'novo' });
     const openShow = ref({ isOpen: false });
@@ -23,6 +24,12 @@ export default function useProductTable(baseEndpoint: string) {
         perPage: 10,
     });
     const dataSet = reactive(new PaginatedDataModel<Product>());
+    const user = reactive<User>({
+        id: null,
+        name: '',
+        email: '',
+        cpf: ''
+    });
 
     const getData = async (url: string) => {
         loading.value = true;
@@ -39,6 +46,23 @@ export default function useProductTable(baseEndpoint: string) {
             loading.value = false;
         }
     };
+
+    const getUser = async () => {
+        loading.value = true;
+        try {
+            const response = await api.get('user/show/'+id);
+            Object.assign(user, {
+                id: response.data.user.id,
+                name: response.data.user.name,
+                email: response.data.user.email,
+                cpf: response.data.user.cpf
+            });
+        } catch (error) {
+            showToast({message: 'Não foi possível encontrar usuario!', color: 'error'});
+        } finally {
+            loading.value = false;
+        }
+    }
 
     const loadData = async () => {
         await getData(baseUrl.value);
@@ -114,6 +138,7 @@ export default function useProductTable(baseEndpoint: string) {
     };
 
     onMounted(async () => {
+        await getUser();
         await loadData();
     });
 
@@ -133,6 +158,7 @@ export default function useProductTable(baseEndpoint: string) {
         handlePerPage,
         openDialog,
         openShow,
-        product
+        product,
+        user
     };
 }
