@@ -7,7 +7,7 @@ import {useConfirmDialog} from "@/composables/useConfirmDialog.ts";
 import type {Product} from "@/types/product-data";
 import type {User} from "@/types/user-data";
 
-export default function useProductTable(baseEndpoint: string, id: number) {
+export default function useProductTable(baseEndpoint: string, id: number | undefined) {
     const { showToast } = useToast();
     const { open } = useConfirmDialog();
     const loading = ref(false);
@@ -25,7 +25,7 @@ export default function useProductTable(baseEndpoint: string, id: number) {
     });
     const dataSet = reactive(new PaginatedDataModel<Product>());
     const user = reactive<User>({
-        id: null,
+        id: undefined,
         name: '',
         email: '',
         cpf: ''

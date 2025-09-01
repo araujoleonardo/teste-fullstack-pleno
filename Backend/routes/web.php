@@ -13,9 +13,10 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Route::get('/relatorio-sql', [RelatoriosController::class, 'relatorios']);
+
+Route::get('/{any}', function () {
+    return file_get_contents(public_path('index.html'));
+})->where('any', '.*');
+
+

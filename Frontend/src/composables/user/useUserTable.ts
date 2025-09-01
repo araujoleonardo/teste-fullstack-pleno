@@ -81,11 +81,6 @@ export default function useUserTable(baseEndpoint: string) {
     await getData(baseUrl.value);
   };
 
-  const handleShow = (row:any) => {
-    user.value = row;
-    openShow.value.isOpen = true;
-  };
-
   const handleOpen = () => {
     openDialog.value.tipoForm = 'novo';
     openDialog.value.isOpen = true;
@@ -126,7 +121,6 @@ export default function useUserTable(baseEndpoint: string) {
     getData,
     handleSort,
     handleSearch,
-    handleShow,
     handleOpen,
     handleEdit,
     handleDelete,

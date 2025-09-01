@@ -19,7 +19,7 @@ const {
   user
 } = useUserTable('/user');
 
-const handleShow = (id: number) => {
+const handleShow = (id?: number) => {
   router.push('/usuario/'+id+'/produtos')
 }
 </script>

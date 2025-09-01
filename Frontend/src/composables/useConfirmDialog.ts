@@ -1,5 +1,4 @@
 import { reactive, readonly } from 'vue';
-import type { ConfirmDialogOptions, ConfirmDialogState } from '@/types/ConfirmDialog';
 
 export interface ConfirmDialogOptions {
     title?: string;
