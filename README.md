@@ -19,7 +19,8 @@
 - Docker
     - docker compose
 
-<hr>
+<hr> 
+
 ## Instruções de Uso
 
 1. Clone o resitorio do github.</br></br>
