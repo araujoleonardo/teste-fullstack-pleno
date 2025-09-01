@@ -90,6 +90,8 @@ php artisan db:seed
 
 ### Abra a plicação no navegador em http://localhost. </br>
 
+### As rotas API estão documentadas em http://localhost/api/documentation. </br>
+
 ## Obs:
 ### A aplicação frontend já está buildada e encapsulada nas rotas do laravel, ao abrir o http://localhost as rotas ja irão reconecer a aplicação do vue, mais caso queira executar em modo desenvolvimento, abaixo está o passo a passo
 
